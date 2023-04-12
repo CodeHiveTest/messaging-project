@@ -1,10 +1,34 @@
 import socket
+import signal
+import time
+from datetime import datetime
 from threading import Thread
 
 # server's IP address
 SERVER_HOST = "127.0.0.1"
 SERVER_PORT = 5002 # port we want to use
 separator_token = "<SEP>" # we will use this to separate the client name & message
+# reset log file
+f = open("messageLogs.txt", "w")
+f.close()
+
+# Log types: Info, Warning, Error
+def makeCommunicationLogs(logType, msg):
+    log = logType+": "
+    f = open("messageLogs.txt", "a")
+
+    dt = datetime.now()
+    if(logType == "Warning" or logType == "Error"):
+        log += "[" + str(datetime.timestamp(dt)) + "]" + " :"
+    log += msg
+    log += "\n"
+
+    f.write(log)
+    f.close()
+
+def handler(signum, frame):
+    makeCommunicationLogs("Error","El servidor se ha cerrado a la fuerza")
+    exit(1)
 
 # initialize list/set of all connected client's sockets
 client_sockets = set()
@@ -17,6 +41,7 @@ s.bind((SERVER_HOST, SERVER_PORT))
 # listen for upcoming connections
 s.listen(5)
 print(f"[*] Servidor escuchando en {SERVER_HOST}:{SERVER_PORT}")
+signal.signal(signal.SIGINT, handler)
 
 def listen_for_client(cs, socket_number):
     while True:
@@ -32,13 +57,22 @@ def listen_for_client(cs, socket_number):
             # if we received a message, replace the <SEP> 
             # token with ": " for nice printing
             if(msg == "q"):
-                print("Un cliente se ha desconectado")
+                disconnectMsg = f"El socket {cs.getsockname()[1]} se ha desconectado"
+                print(disconnectMsg)
                 cs.close()
                 client_sockets.remove(cs)
+                makeCommunicationLogs("Info",disconnectMsg)
                 break
-
             msg = msg.replace(separator_token, ": ")
+            contentMsg = msg.split(": ")[-1].split(',')
+            contentMsg[-1] = contentMsg[-1][0:3]
+            contentMsg = ",".join(contentMsg)
+            print("contenido",contentMsg)
+            if(contentMsg == "111,112,123,125,112"):
+                print("Peligro mensaje bomba encontrado")
+                makeCommunicationLogs("Warning","mensaje bomba encontrado")
             print(f"mensaje recibido: {msg}")
+            makeCommunicationLogs("Info",msg)
         # iterate over all connected sockets
         for client_socket in client_sockets:
             # and send the message
