@@ -22,7 +22,7 @@ Para instalar este proyecto, basta con hacer un git clone con la url del proyect
 ## Cómo contribuir
 
 1. Haz un fork del proyecto a tu cuenta de GitHub.
-2. Clona el repositorio en tu computadora: `git clone https://github.com/tu-usuario/nuestro-proyecto.git`
+2. Clona el repositorio en tu computadora: `git clone https://github.com/CodeHiveTest/messaging-project.git`
 3. Crea una rama para realizar tus cambios: `git checkout -b nombre-de-tu-rama`
 4. Realiza tus cambios y asegúrate de que todo funciona correctamente.
 5. Haz commit de tus cambios: `git commit -am 'Agregué una nueva función para...'`
